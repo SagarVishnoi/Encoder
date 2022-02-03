@@ -1,0 +1,63 @@
+  function get_method() {
+
+    var rb = document.getElementsByName('method');
+    for (var i = 0, length = rb.length; i < length; i++) {
+        if (rb[i].checked) { return rb[i].value; }
+    }
+
+  }
+
+  function get_password() {
+    var orig_pass = document.getElementById("pass").value;
+    var password = new Array(orig_pass.length);
+    for(i=0; i<orig_pass.length; i++) {
+      password[i] = orig_pass.charCodeAt(i);
+    }
+    return password;
+  }
+
+  function do_encode() {
+    var password = get_password();
+    var orig = document.getElementById("as1").value;
+    orig = orig.replace(/\r\n/g,"mmm");
+    orig = orig.replace(/\r/g,"mmm");
+    orig = orig.replace(/\n/g,"mmm");
+    orig = orig.split("");
+
+    var passnum = password.length - 1;
+    for(var i=0; i<orig.length; i++) {
+
+      passnum++;
+      if (passnum == password.length) passnum = 0;
+
+      var pos1 = i;
+      var pos2 = i + password[passnum];
+
+      if (pos2 >= orig.length) continue;
+
+      var char1 = orig[pos1];
+      var char2 = orig[pos2];
+
+      orig[pos2] = char1;
+      orig[pos1] = char2;
+
+    }
+
+    var orig1 = "";
+    for(var i=0;i<orig.length;i++) {
+      orig1 = orig1 + orig[i];
+    }
+
+    var thecode1 = document.getElementById(get_method() == "inline" ? "thecodeInline" : "thecodePopup").innerHTML;
+    thecode1 = thecode1.replace(/&lt;/g,'<');
+    thecode1 = thecode1.replace(/&gt;/g,'>');
+    thecode1 = thecode1.replace(/&amp;/g,'&');
+    // have to do this as Internet Explorer removes line breaks and spaces
+    thecode1 = thecode1.replace(/linebreak/g,"\n");
+    // and this is for Opera
+    thecode1 = thecode1.replace(/&quot;/g,'"');
+
+    var escaped = escape(orig1).match(/.{1,200}/g).join('\',\n\''); // split into chunks
+    orig1 = thecode1.replace(/thecode/, '"".concat(\'' + escaped + '\')');
+    document.getElementById("as2").value = orig1;
+  }
